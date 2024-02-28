@@ -1,6 +1,16 @@
 const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats,trackchap } = require('./commands');
-const {PermissionsBitField, EmbedBuilder } = require('discord.js');
+const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
+
+const bot = new Client({ intents: [
+    GatewayIntentBits.Guilds, 
+    GatewayIntentBits.GuildMessages, 
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildMessageReactions,
+]});
 
 const adminPermission = new PermissionsBitField(PermissionsBitField.Default);
 
