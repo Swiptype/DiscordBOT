@@ -1,5 +1,5 @@
 const { random } = require('./utils');
-const { AttachmentBuilder, EmbedBuilder, messageLink } = require('discord.js');
+const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 
@@ -157,6 +157,36 @@ async function RsearchDnd(message){
     }
 }
 
+async function clearChannel(message){
+    const channel = message.channel;
+    let cpt = 0;
+
+    try{
+        const fetched = await channel.messages.fetch({limit : 100});
+        const messagesToDelete = fetched.filter(msg => (Date.now() - msg.createdTimestamp) > 1209600000);
+        const messagesToBulkDelete = fetched.filter(msg => !messagesToDelete.has(msg.id));
+
+        if(messagesToDelete.size > 0){
+            messagesToDelete.forEach(async msg => {
+                try {
+                    await msg.delete();
+                    console.log(`Deleted messages older than 14 days in ${channel.name}`);
+                } catch (error){
+                    console.error('Error deleting messages :',error);
+                }
+            });
+        }
+
+        if(messagesToBulkDelete.size > 0){
+            await channel.bulkDelete(messagesToBulkDelete);
+            console.log(`Cleared ${messagesToBulkDelete.size} messages younger than 14 days old in ${channel.name}`);
+        }
+
+    } catch (error){
+        console.error('Error cleaning :', error);
+    }
+}
+
 /*Tracker les tweets -> fonctionne mais j'ai pas le niveau d'API pour lire des tweets
 async function startTrackingTweets(){
     try{
@@ -207,5 +237,6 @@ module.exports = {
     handleRandomStats,
     trackchap,
     searchDnd,
-    RsearchDnd
+    RsearchDnd,
+    clearChannel
 };

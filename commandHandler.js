@@ -1,4 +1,4 @@
-const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd } = require('./commands');
+const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
 const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
 import('node-fetch');
@@ -126,6 +126,10 @@ function commandHandler(message) {
 
         case '5/01/2024':
             message.reply("va te faire enculer, c'est bon frere c'est quoi cette soirée de merde, on met 1h pour enfin faire quelque chose dans SoT, on fait un crâne vert, one le vend, on va faire un crâne rouge, on a le brouillard, une tempête et quand on se barre de l'île, y a un galion fantôme qui nous spamme de boulets d'ancre, puis un megalodon qui nous fais des trous donc on coule, Axel reste avec le coffre Athena, se fait tuer par 3 requins en même temps, on y retourne pour que l'un des barils athéna qu'on avait ramassé explose sur la coque du bateau et nous refasse couler. Apres on s'est dit foutus pour foutus autant jouer à LoL et j'ai rarement passé une aussi mauvaise game de ma vie. Il est 00h58 le 6 janvier quand j'écris et je vais aller me coucher le mort aux lèvres. Soirée de merde") 
+            break;
+
+        case '!clearChannel':
+            clearChannel(message);
             break;
     }
 
