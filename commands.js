@@ -1,7 +1,20 @@
 const { random } = require('./utils');
-const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
+const {AttachmentBuilder,PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
+const { spawn } = require('child_process');
+
+const bot = new Client({ intents: [
+    GatewayIntentBits.Guilds, 
+    GatewayIntentBits.GuildMessages, 
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildMessageReactions,
+]});
+
+const adminPermission = new PermissionsBitField(PermissionsBitField.Default);
 
 const pathImg = './Dés/';
   
@@ -12,7 +25,6 @@ const dndRaces = ["Elfe", "Halfelin", "Humain", "Nain", "Demi-elfe", "Demi-orc",
 const dndHistorique = ["Acolyte", "Artisan", "Artiste", "Charlatan", "Criminel", "Enfant des rues", "Ermite", "Héros du peuple", "Marin", "Noble", "Sage", "Sauvageon", "Soldat"];
 const dndAlignement = ["Loyal bon", "Neutre bon", "Chaotique bon", "Loyal neutre", "Neutre neutre", "Chaotique neutre", "Loyal mauvais", "Neutre mauvais", "Chaotique mauvais"];
 
-// Vos fonctions de gestion des commandes ici
 //Envoyer les images de dés
 function handleDiceRoll(message,images) {
     message.reply(`Lancer de d${images.length} :`);

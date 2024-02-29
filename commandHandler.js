@@ -1,20 +1,5 @@
 const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
-const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
-const { spawn } = require('child_process');
 import('node-fetch');
-
-
-const bot = new Client({ intents: [
-    GatewayIntentBits.Guilds, 
-    GatewayIntentBits.GuildMessages, 
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildEmojisAndStickers,
-    GatewayIntentBits.GuildMessageReactions,
-]});
-
-const adminPermission = new PermissionsBitField(PermissionsBitField.Default);
 
 const images = [
     '1.png','2.png','3.png','4.png','5.png','6.png','7.png','8.png','9.png','10.png','11.png','12.png','13.png','14.png','15.png','16.png','17.png','18.png','19.png','20.png'
@@ -23,7 +8,6 @@ const images = [
 function commandHandler(message) {
     const content = message.content;
 
-    // Votre logique de gestion des commandes ici
     switch(content){
 
         //Lancés de dés
