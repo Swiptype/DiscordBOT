@@ -121,8 +121,33 @@ async function searchDnd(message){
         const data = await response.json();
 
         if (data.results.length > 0){
-            const spellNames = data.results.map(spell => spell.name).join(', ');
-            message.channel.send( `Résultats : ${spellNames}`);
+            const names = data.results.map(spell => spell.name).join(', ');
+            message.channel.send( `Résultats : ${names}`);
+        } else {
+            message.channel.send("Pas de résultats");
+        }
+    } catch (error){
+        console.error('Error fetching : ', error);
+        message.channel.send('Erreur');
+    }
+}
+
+async function RsearchDnd(message){
+    const [command, ...searchWords] = message.content.split(' ');
+    const searchTerm = searchWords.join(' ');
+
+    try{
+        const response = await fetch(`https://api.open5e.com/${command}/?search=${encodeURIComponent(searchTerm)}`);
+
+        if(!response.ok){
+            throw new Error(`Failed to fetch. Status code : ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.results.length > 0){
+            const names = data.results.map(spell => spell.name).join(', ');
+            message.channel.send( `Résultats : ${names}`);
         } else {
             message.channel.send("Pas de résultats");
         }
@@ -181,5 +206,6 @@ module.exports = {
     handleDnDCreation,
     handleRandomStats,
     trackchap,
-    searchDnd
+    searchDnd,
+    RsearchDnd
 };

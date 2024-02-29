@@ -1,4 +1,4 @@
-const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd } = require('./commands');
+const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd } = require('./commands');
 const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
 import('node-fetch');
@@ -165,6 +165,10 @@ function commandHandler(message) {
 
     if(message.content.startsWith('!searchDnd') && message.content.length > '!searchDnd'.length){
         searchDnd(message);
+    }
+
+    if(message.content.startsWith('!RsearchDnd') && message.content.length > '!RsearchDnd'.length){
+        RsearchDnd(message);
     }
 }
 
