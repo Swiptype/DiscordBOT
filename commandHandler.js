@@ -1,6 +1,8 @@
-const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats,trackchap } = require('./commands');
+const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd } = require('./commands');
 const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
+import('node-fetch');
+
 
 const bot = new Client({ intents: [
     GatewayIntentBits.Guilds, 
@@ -159,6 +161,10 @@ function commandHandler(message) {
             message.channel.send('Temps écoulé');
           }
         }, 1000);
+    }
+
+    if(message.content.startsWith('!searchDnd') && message.content.length > '!spells'.length){
+        searchDnd(message);
     }
 }
 

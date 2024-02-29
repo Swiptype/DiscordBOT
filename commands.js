@@ -1,5 +1,5 @@
 const { random } = require('./utils');
-const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
+const { AttachmentBuilder, EmbedBuilder, messageLink } = require('discord.js');
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 
@@ -108,6 +108,30 @@ function trackchap(message){
         });
 }
 
+async function searchDnd(message){
+    const searchTerm = message.content.slice('!search'.length).trim();
+
+    try{
+        const response = await fetch(`https://api.open5e.com/search/?text=${encodeURIComponent(searchTerm)}`);
+        
+        if(!response.ok){
+            throw new Error(`Failed to fetch. Status code : ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.results.length > 0){
+            const spellNames = data.results.map(spell => spell.name).join(', ');
+            message.channel.send( `Sort : ${spellNames}`);
+        } else {
+            message.channel.send("Pas de résultats");
+        }
+    } catch (error){
+        console.error('Error fetching : ', error);
+        message.channel.send('Erreur');
+    }
+}
+
 /*Tracker les tweets -> fonctionne mais j'ai pas le niveau d'API pour lire des tweets
 async function startTrackingTweets(){
     try{
@@ -156,5 +180,6 @@ module.exports = {
     handlePileOuFace,
     handleDnDCreation,
     handleRandomStats,
-    trackchap
+    trackchap,
+    searchDnd
 };
