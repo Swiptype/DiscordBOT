@@ -109,7 +109,7 @@ function trackchap(message){
 }
 
 async function searchDnd(message){
-    const searchTerm = message.content.slice('!search'.length).trim();
+    const searchTerm = message.content.slice('!searchDnd'.length).trim();
 
     try{
         const response = await fetch(`https://api.open5e.com/search/?text=${encodeURIComponent(searchTerm)}`);
@@ -122,7 +122,7 @@ async function searchDnd(message){
 
         if (data.results.length > 0){
             const spellNames = data.results.map(spell => spell.name).join(', ');
-            message.channel.send( `Sort : ${spellNames}`);
+            message.channel.send( `Résultats : ${spellNames}`);
         } else {
             message.channel.send("Pas de résultats");
         }

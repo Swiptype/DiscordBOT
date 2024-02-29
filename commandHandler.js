@@ -163,7 +163,7 @@ function commandHandler(message) {
         }, 1000);
     }
 
-    if(message.content.startsWith('!searchDnd') && message.content.length > '!spells'.length){
+    if(message.content.startsWith('!searchDnd') && message.content.length > '!searchDnd'.length){
         searchDnd(message);
     }
 }
