@@ -159,7 +159,6 @@ async function RsearchDnd(message){
 
 async function clearChannel(message){
     const channel = message.channel;
-    let cpt = 0;
 
     try{
         const fetched = await channel.messages.fetch({limit : 100});

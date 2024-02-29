@@ -110,6 +110,9 @@ function commandHandler(message) {
                     { name: 'Date du jour', value: '!jour'},
                     { name: 'Lancer un timer', value: '!timer "valeur en secondes"'},
                     { name: 'Voir les derniers chapîtres', value: '!chapitre'},
+                    { name: 'Faire une recherche générale sur DnD', value: '!searchDnd'},
+                    { name: 'Faire une recherche de ressource sur DnD', value: '!RsearchDnd'},
+                    { name: 'Nettoyer 100 messages', value: '!clearChannel'},
                     { name: 'Reload le BOT(permissions necessaires)', value: '!reload'},
                     { name: 'Arrêter le BOT(permissions necessaires)', value: '!stop'},
                 )
