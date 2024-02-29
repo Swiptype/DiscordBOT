@@ -1,4 +1,4 @@
-const { handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
+const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
 const {PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
 import('node-fetch');
@@ -60,64 +60,22 @@ function commandHandler(message) {
 
         //Quel jour sommes nous ?
         case '!jour':
-            const currentDate = new Date();
-            const dayPassed = currentDate.toLocaleDateString();
-            let hour = currentDate.toLocaleTimeString();
-            message.reply({ content : `Nous sommes le ${dayPassed} et il est ${hour}`});
+            jour(message);
             break;
 
         //Reload le BOT
         case '!reload':
-            if (adminPermission.has(PermissionsBitField.Flags.Administrator)){
-                message.reply({ content: "⚠️ Pas assez de droits pour utiliser cette commande !", ephemeral: true});
-            } else{
-                message.reply("Redémarrage du bot ⌛").then(() => {
-                    console.log("Reloading... ⌛");
-                    bot.destroy();
-                });
-                spawn('node', ['index.js']);
-                message.channel.send("Bot redémarré ! ⭐");
-                console.log("Bot redémarré ! ⭐");
-            }
+            reload(message);
             break;
 
         //Stop le BOT
         case '!stop':
-            if (adminPermission.has(PermissionsBitField.Flags.Administrator)){
-                message.reply({ content: "⚠️ Pas assez de droits pour utiliser cette commande !", ephemeral: true});
-            } else{
-                message.reply("Arrêt du bot 🛑").then(() => {
-                    process.exit();
-                });
-            }
+            stop(message);
             break;
 
         //Menu
         case '!help':
-            const menu = new EmbedBuilder()
-                .setColor(0x0099FF)
-                .setTitle('Help Menu')
-                .setDescription('Liste des commandes du bot')
-                .addFields(
-                    { name: 'Lancer un d4', value: '!d4'},
-                    { name: 'Lancer un d6', value: '!d6'},
-                    { name: 'Lancer un d8', value: '!d8'},
-                    { name: 'Lancer un d10', value: '!d10'},
-                    { name: 'Lancer un d20', value: '!d20'},
-                    { name: 'Pile ou Face', value: '!PF'},
-                    { name: 'Créer perso DND', value: '!creerPersonnage'},
-                    { name: 'Stats aléatoires pour un perso de DND', value: '!aleaStats'},
-                    { name: 'Date du jour', value: '!jour'},
-                    { name: 'Lancer un timer', value: '!timer "valeur en secondes"'},
-                    { name: 'Voir les derniers chapîtres', value: '!chapitre'},
-                    { name: 'Faire une recherche générale sur DnD', value: '!searchDnd'},
-                    { name: 'Faire une recherche de ressource sur DnD', value: '!RsearchDnd'},
-                    { name: 'Nettoyer 100 messages', value: '!clearChannel'},
-                    { name: 'Reload le BOT(permissions necessaires)', value: '!reload'},
-                    { name: 'Arrêter le BOT(permissions necessaires)', value: '!stop'},
-                )
-                .setTimestamp();
-            message.channel.send({embeds: [menu]});
+            help(message);
             break;
 
         //TweetTracking
@@ -153,21 +111,7 @@ function commandHandler(message) {
 
     //Créer un timer qui affiche les secondes au fur et a mesure qu'elles descendent
     if (message.content.startsWith('!timer')) {
-        const time = parseInt(message.content.split(' ')[1]);
-        if (!time || time < 0) {
-          message.reply({ content : 'veuillez spécifier une durée en secondes.'});
-          return;
-        }
-      
-        let remaining = time;
-        const countdown = setInterval(() => {
-          message.channel.send(`${remaining}`);
-          remaining--;
-          if (remaining < 0) {
-            clearInterval(countdown);
-            message.channel.send('Temps écoulé');
-          }
-        }, 1000);
+        timer(message);
     }
 
     if(message.content.startsWith('!searchDnd') && message.content.length > '!searchDnd'.length){
