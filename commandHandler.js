@@ -1,4 +1,4 @@
-const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
+const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, checkDataAndSend, searchDnd, RsearchDnd, clearChannel } = require('./commands');
 import('node-fetch');
 
 const images = [
@@ -105,6 +105,8 @@ function commandHandler(message) {
     if(message.content.startsWith('!RsearchDnd') && message.content.length > '!RsearchDnd'.length){
         RsearchDnd(message);
     }
+
+    checkDataAndSend("Chapitre !");
 }
 
 module.exports = commandHandler;
