@@ -169,42 +169,32 @@ function trackchap(message){
         .then(response => {
             let data = response.data;
 
-            if(data !== previousData){
-                let dom = new JSDOM(data);
-                let divs = dom.window.document.querySelectorAll('div.sortie');
-                let divArray = Array.from(divs).slice(0,3);
+            let dom = new JSDOM(data);
+            let divs = dom.window.document.querySelectorAll('div.sortie');
+            let divArray = Array.from(divs).slice(0,3);
 
-                divArray.forEach((div) => {
-                    let mangaTitle = Array.from(div.querySelector('p').childNodes)
-                        .filter(node => node.nodeName === '#text')
-                        .map(node => node.textContent.trim())
-                        .join(' ');
+            divArray.forEach((div) => {
+                let mangaTitle = Array.from(div.querySelector('p').childNodes)
+                    .filter(node => node.nodeName === '#text')
+                    .map(node => node.textContent.trim())
+                    .join(' ');
 
-                        let mangaImageSrc = div.querySelector('img').getAttribute('src');
-                        mangaImageSrc = baseURL + mangaImageSrc;
+                    let mangaImageSrc = div.querySelector('img').getAttribute('src');
+                    mangaImageSrc = baseURL + mangaImageSrc;
 
-                        let mangas = new EmbedBuilder()
-                            .setColor('DarkerGrey')
-                            .addFields(
-                                {name: mangaTitle, value: '‎'},
-                            )
-                            .setImage(mangaImageSrc)
-                            .setTimestamp();
-                        message.channel.send({embeds: [mangas]});
-                    });
-            }
+                    let mangas = new EmbedBuilder()
+                        .setColor('DarkerGrey')
+                        .addFields(
+                            {name: mangaTitle, value: '‎'},
+                        )
+                        .setImage(mangaImageSrc)
+                        .setTimestamp();
+                    message.channel.send({embeds: [mangas]});
+            });
         })
         .catch(error => {
             console.error('Erreur lors de la requete', error);
         });
-}
-
-function checkDataAndSend(message){
-    trackchap(message);
-
-    setTimeout(() => {
-        checkDataAndSend(message);
-    }, 5 * 60 * 1000);
 }
 
 async function searchDnd(message){
@@ -334,7 +324,6 @@ module.exports = {
     handleDnDCreation,
     handleRandomStats,
     trackchap,
-    checkDataAndSend,
     searchDnd,
     RsearchDnd,
     clearChannel,
