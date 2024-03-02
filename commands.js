@@ -159,8 +159,6 @@ function timer(message){
     }, 1000);
 }
 
-let previousData = '';
-
 function trackchap(message){
     const baseURL = 'https://mangamoins.shaeishu.co';
     const url = 'https://mangamoins.shaeishu.co/';
