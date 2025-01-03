@@ -1,4 +1,4 @@
-const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel } = require('./commands');
+const { jour, reload, stop, help, timer, handleDiceRoll, handleD20Roll, handlePileOuFace, handleDnDCreation, handleRandomStats, trackchap, searchDnd, RsearchDnd, clearChannel, playYoutubeAudio } = require('./commands');
 import('node-fetch');
 
 const images = [
@@ -104,6 +104,11 @@ function commandHandler(message) {
 
     if(message.content.startsWith('!RsearchDnd') && message.content.length > '!RsearchDnd'.length){
         RsearchDnd(message);
+    }
+
+    if(message.content.startsWith('!play')){
+        const query = message.content.slice(6);
+        playYoutubeAudio(message, query);
     }
 }
 

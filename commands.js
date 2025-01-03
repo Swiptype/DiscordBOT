@@ -3,6 +3,10 @@ const axios = require('axios');
 const { JSDOM } = require('jsdom');
 const {AttachmentBuilder,PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+const ytdl = require('ytdl-core');
+const ytSearch = require('yt-search');
+
 
 const bot = new Client({ intents: [
     GatewayIntentBits.Guilds, 
@@ -273,6 +277,37 @@ async function clearChannel(message){
     }
 }
 
+async function playYoutubeAudio(message,query){
+    if (!message.member.voice.channel){
+        message.reply('Vous devez être dans un salon vocal pour utiliser cette commande');
+        return;
+    }
+
+    const searchResult = await ytSearch(query);
+    if(!searchResult.videos.length){
+        message.reply('Pas de résultats trouvés');
+        return;
+    }
+
+    const video = searchResult.videos[0];
+    const stream = ytdl(video.url, {filter: 'audioonly',highWaterMark: 1 << 25});
+
+    const voiceChannel = message.member.voice.channel;
+    const connection = joinVoiceChannel({
+        channelId: voiceChannel.id,
+        guildId: voiceChannel.guild.id,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+    });
+
+    const player = createAudioPlayer();
+    const resource = createAudioResource(stream);
+
+    player.play(resource);
+    connection.subscribe(player);
+
+    message.reply(`🎵 Lecture de ${video.title}`);
+}
+
 /*Tracker les tweets -> fonctionne mais j'ai pas le niveau d'API pour lire des tweets
 async function startTrackingTweets(){
     try{
@@ -329,5 +364,6 @@ module.exports = {
     reload,
     stop,
     help,
-    timer
+    timer,
+    playYoutubeAudio
 };
