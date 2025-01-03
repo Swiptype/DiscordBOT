@@ -11,6 +11,7 @@ const bot = new Client({ intents: [
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates
 ]});
 
 bot.on("ready", () => {

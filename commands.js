@@ -3,10 +3,10 @@ const axios = require('axios');
 const { JSDOM } = require('jsdom');
 const {AttachmentBuilder,PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
-const ytSearch = require('yt-search');
-
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+//const ytdl = require('ytdl-core');
+//const ytSearch = require('yt-search');
+const play = require('play-dl');
 
 const bot = new Client({ intents: [
     GatewayIntentBits.Guilds, 
@@ -283,16 +283,25 @@ async function playYoutubeAudio(message,query){
         return;
     }
 
-    const searchResult = await ytSearch(query);
-    if(!searchResult.videos.length){
-        message.reply('Pas de résultats trouvés');
-        return;
+    //const searchResult = await ytSearch(query);
+    //if(!searchResult.videos.length){
+    //    message.reply('Pas de résultats trouvés');
+    //    return;
+    //}
+
+    const searchResult = await play.search(query, {limit: 1});
+    if (!searchResult.length){
+        return message.reply('Aucun résultat trouvé');
     }
 
-    const video = searchResult.videos[0];
-    const stream = ytdl(video.url, {filter: 'audioonly',highWaterMark: 1 << 25});
+    const video = searchResult[0];
+    console.log(video);
+    //const stream = ytdl(video.url, {filter: 'audioonly',highWaterMark: 1 << 25});
+    const stream = await play.stream(video.url);
+    console.log("Stream créé avec succès");
 
     const voiceChannel = message.member.voice.channel;
+
     const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
@@ -300,12 +309,38 @@ async function playYoutubeAudio(message,query){
     });
 
     const player = createAudioPlayer();
-    const resource = createAudioResource(stream);
+    //const resource = createAudioResource(stream);
+    const resource = createAudioResource(stream.stream, {
+        inputType: stream.type,
+    });
 
     player.play(resource);
+
     connection.subscribe(player);
 
-    message.reply(`🎵 Lecture de ${video.title}`);
+    player.on(AudioPlayerStatus.Playing, () => {
+        console.log(`Lecture de ${video.title}`);
+    });
+
+    player.on(AudioPlayerStatus.Idle, () => {
+        console.log('Le lecteur audio est inactif.');
+    });
+    
+    player.on(AudioPlayerStatus.Buffering, () => {
+        console.log('Le lecteur audio est en cours de mise en tampon.');
+    });
+    
+    player.on(AudioPlayerStatus.AutoPaused, () => {
+        console.log('Le lecteur audio est automatiquement en pause.');
+    });
+
+    player.on('error', (error) => {
+        console.error(`Erreur de lecture audio : ${error.message}`);
+    });
+
+    console.log(`Type de flux : ${stream.type}`);
+
+    message.reply(`🎵 Lecture de **${video.title}** dans le salon vocal.`);
 }
 
 /*Tracker les tweets -> fonctionne mais j'ai pas le niveau d'API pour lire des tweets
