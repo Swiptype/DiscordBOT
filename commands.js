@@ -4,9 +4,9 @@ const { JSDOM } = require('jsdom');
 const {AttachmentBuilder,PermissionsBitField, EmbedBuilder,Client, GatewayIntentBits } = require('discord.js');
 const { spawn } = require('child_process');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-//const ytdl = require('ytdl-core');
-//const ytSearch = require('yt-search');
-const play = require('play-dl');
+const ytdl = require('ytdl-core');
+const ffmpeg = require('fluent-ffmpeg');
+const YouTube = require('youtube-search-api');
 
 const bot = new Client({ intents: [
     GatewayIntentBits.Guilds, 
@@ -277,70 +277,89 @@ async function clearChannel(message){
     }
 }
 
-async function playYoutubeAudio(message,query){
-    if (!message.member.voice.channel){
-        message.reply('Vous devez être dans un salon vocal pour utiliser cette commande');
+async function playYoutubeAudio(message, query) {
+    if (!message.member.voice.channel) {
+        message.reply('Vous devez être dans un salon vocal pour utiliser cette commande.');
         return;
     }
 
-    //const searchResult = await ytSearch(query);
-    //if(!searchResult.videos.length){
-    //    message.reply('Pas de résultats trouvés');
-    //    return;
-    //}
-
-    const searchResult = await play.search(query, {limit: 1});
-    if (!searchResult.length){
-        return message.reply('Aucun résultat trouvé');
-    }
-
-    const video = searchResult[0];
-    console.log(video);
-    //const stream = ytdl(video.url, {filter: 'audioonly',highWaterMark: 1 << 25});
-    const stream = await play.stream(video.url);
-    console.log("Stream créé avec succès");
-
     const voiceChannel = message.member.voice.channel;
 
-    const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
+    try {
+        // Recherche de la vidéo via YouTube API
+        const searchResults = await YouTube.GetListByKeyword(query, false);
+        if (!searchResults.items || searchResults.items.length === 0) {
+            message.reply('Aucune vidéo trouvée pour cette recherche.');
+            return;
+        }
 
-    const player = createAudioPlayer();
-    //const resource = createAudioResource(stream);
-    const resource = createAudioResource(stream.stream, {
-        inputType: stream.type,
-    });
+        const video = searchResults.items[0]; // La première vidéo trouvée
+        const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
 
-    player.play(resource);
+        console.log('Vidéo trouvée :', videoUrl);
 
-    connection.subscribe(player);
+        // Créer une connexion au salon vocal
+        const connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: voiceChannel.guild.id,
+            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+        });
 
-    player.on(AudioPlayerStatus.Playing, () => {
-        console.log(`Lecture de ${video.title}`);
-    });
+        const player = createAudioPlayer();
+        const subscription = connection.subscribe(player);
 
-    player.on(AudioPlayerStatus.Idle, () => {
-        console.log('Le lecteur audio est inactif.');
-    });
-    
-    player.on(AudioPlayerStatus.Buffering, () => {
-        console.log('Le lecteur audio est en cours de mise en tampon.');
-    });
-    
-    player.on(AudioPlayerStatus.AutoPaused, () => {
-        console.log('Le lecteur audio est automatiquement en pause.');
-    });
+        if (!subscription) {
+            console.error('Erreur lors de la souscription au canal vocal.');
+            message.reply('Une erreur est survenue lors de la connexion au salon vocal.');
+            connection.destroy();
+            return;
+        }
 
-    player.on('error', (error) => {
-        console.error(`Erreur de lecture audio : ${error.message}`);
-    });
+        // Téléchargement de l'audio de la vidéo avec ytdl-core
+        const audioStream = ytdl(videoUrl, { filter: 'audioonly', highWaterMark: 1 << 25 });
 
-    console.log(`Type de flux : ${stream.type}`);
+        // Conversion et envoi du flux audio vers Discord avec ffmpeg
+        const resource = createAudioResource(
+            audioStream.pipe(
+                ffmpeg()
+                    .input(audioStream)
+                    .audioCodec('libopus') // Codec Opus pour Discord
+                    .audioFilters('volume=1') // Appliquer un filtre de volume
+                    .format('ogg') // Format compatible Discord
+                    .on('start', (cmd) => {
+                        console.log(`ffmpeg started with command: ${cmd}`);
+                    })
+                    .on('error', (err) => {
+                        console.error('FFmpeg error: ', err);
+                    })
+                    .pipe() // Créer un flux
+            ),
+            {
+                inputType: 'opus',
+            }
+        );
 
-    message.reply(`🎵 Lecture de **${video.title}** dans le salon vocal.`);
+        player.play(resource);
+        console.log('Ressource ajoutée au lecteur.');
+
+        player.on('stateChange', (oldState, newState) => {
+            console.log(`Audio player state changed from ${oldState.status} to ${newState.status}`);
+            if (newState.status === AudioPlayerStatus.Idle) {
+                console.log("La musique est terminée.");
+                connection.destroy();
+            }
+        });
+
+        player.on('error', (error) => {
+            console.error('Erreur du lecteur audio :', error);
+            connection.destroy();
+        });
+
+        message.reply(`🎵 Lecture de **${video.title}** dans le salon vocal.`);
+    } catch (error) {
+        console.error('Erreur lors de la recherche de la vidéo ou de la lecture:', error);
+        message.reply('Une erreur est survenue lors de la lecture de l\'audio.');
+    }
 }
 
 /*Tracker les tweets -> fonctionne mais j'ai pas le niveau d'API pour lire des tweets
